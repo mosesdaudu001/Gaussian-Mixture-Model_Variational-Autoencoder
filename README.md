@@ -31,6 +31,8 @@ Download the repo manually (as a .zip file) or clone it using Git.
 <!-- USAGE EXAMPLES -->
 ## Usage
 
+To train on the dataset, change `train` and `eval` at line 63, and 64 respectively to be `True`. To train without processing the data (converting continous variables to categorical variables), change `convert_cont_to_cat` in utils.py at line 94 to be `False`, while to train with processing, change it to be `True`
+
 You can specify different configurations or training parameters in utils.py for both models.
 
 
