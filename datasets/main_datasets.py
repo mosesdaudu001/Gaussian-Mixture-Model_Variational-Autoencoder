@@ -45,6 +45,9 @@ def preprocess_cardio_train(dataset_name, args):
     # Drop irrelevant columns
     raw_df = raw_df.drop(labels=['id'], axis=1)
     
+    if args['convert_cont_to_cat']:
+        raw_df = cont2cat(raw_df, ['age', 'height', 'weight', 'ap_hi', 'ap_lo'])
+        
     raw_metadata = Metadata.detect_from_dataframes(data)
     
     metadata_cols = raw_metadata.tables['cardio_train'].columns
@@ -55,9 +58,9 @@ def preprocess_cardio_train(dataset_name, args):
     # Transform covariates and create df
     df = raw_df.copy()
     mapping_info = {}
-    # df['id'], classes = df['id'].factorize()
-    # mapping_info['id'] = np.array(classes.values)
-    # df['id'] = df['id'].replace(-1, np.nan)
+    # # df['id'], classes = df['id'].factorize()
+    # # mapping_info['id'] = np.array(classes.values)
+    # # df['id'] = df['id'].replace(-1, np.nan)
     
     df['age'], classes = df['age'].factorize()
     mapping_info['age'] = np.array(classes.values)
@@ -80,19 +83,19 @@ def preprocess_cardio_train(dataset_name, args):
     df['ap_hi'] = df['ap_hi'].replace(-1, np.nan)
     
     df['ap_lo'], classes = df['ap_lo'].factorize()
-    mapping_info['ap_lo'] = np.array(classes.values)
-    df['ap_lo'] = df['ap_lo'].replace(-1, np.nan)
+    # mapping_info['ap_lo'] = np.array(classes.values)
+    # df['ap_lo'] = df['ap_lo'].replace(-1, np.nan)
     
     df['cholesterol'], classes = df['cholesterol'].factorize()
-    mapping_info['cholesterol'] = np.array(classes.values)
+    # mapping_info['cholesterol'] = np.array(classes.values)
     # df['cholesterol'] = df['cholesterol'].replace(-1, np.nan)
-    df['cholesterol'] = df['cholesterol'].map({1: 0, 2: 1, 3: 2})
+    # df['cholesterol'] = df['cholesterol'].map({1: 0, 2: 1, 3: 2})
    
     
     df['gluc'], classes = df['gluc'].factorize()
-    mapping_info['gluc'] = np.array(classes.values)
+    # mapping_info['gluc'] = np.array(classes.values)
     # df['gluc'] = df['gluc'].replace(-1, np.nan)
-    df['gluc'] = df['gluc'].map({1: 0, 2: 1, 3: 2})
+    # df['gluc'] = df['gluc'].map({1: 0, 2: 1, 3: 2})
 
     
     df['smoke'], classes = df['smoke'].factorize()
@@ -104,47 +107,34 @@ def preprocess_cardio_train(dataset_name, args):
     df['alco'] = df['alco'].replace(-1, np.nan)
     
     df['active'], classes = df['active'].factorize()
-    mapping_info['active'] = np.array(classes.values)
+    # mapping_info['active'] = np.array(classes.values)
     df['active'] = df['active'].replace(-1, np.nan)
     
     df['cardio'], classes = df['cardio'].factorize()
-    mapping_info['cardio'] = np.array(classes.values)
+    # mapping_info['cardio'] = np.array(classes.values)
     df['cardio'] = df['cardio'].replace(-1, np.nan)
     
     # Create data manager object
     data_manager = DataManager(dataset_name, raw_df, df, mapping_info, raw_metadata=raw_metadata)
 
-    # Obtain feature distributions
-    feat_distributions = [('gaussian', 2),
-                          ('bernoulli', 1),
-                          ('gaussian', 2),
-                          ('gaussian', 2),
-                          ('gaussian', 2),
-                          ('gaussian', 2),
-                          ('categorical', 3),
-                          ('categorical', 3),
-                          ('bernoulli', 1),
-                          ('bernoulli', 1),
-                          ('bernoulli', 1),
-                          ('bernoulli', 1)]
-    # feat_distributions = []
-    # for i in range(df.shape[1]):
-    #     values = df.iloc[:, i].unique()
-    #     no_nan_values = values[~pd.isnull(values)]
-    #     if no_nan_values.size <= 2 and np.all(np.sort(no_nan_values).astype(int) ==
-    #                                           np.array(range(no_nan_values.min().astype(int),
-    #                                                          no_nan_values.min().astype(int) + len(no_nan_values)))):
-    #         feat_distributions.append(('bernoulli', 1))
-    #     elif np.amin(np.equal(np.mod(no_nan_values, 1), 0)):
-    #         # Check if values are floats but don't have decimals and transform to int. They are floats because of NaNs
-    #         if no_nan_values.dtype == 'float64':
-    #             no_nan_values = no_nan_values.astype(int)
-    #         if np.unique(no_nan_values).size < 50 and np.amin(no_nan_values) == 0:
-    #             feat_distributions.append(('categorical', (np.max(no_nan_values) + 1).astype(int)))
-    #         else:
-    #             feat_distributions.append(('gaussian', 2))
-    #     else:
-    #         feat_distributions.append(('gaussian', 2))
+    feat_distributions = []
+    for i in range(df.shape[1]):
+        values = df.iloc[:, i].unique()
+        no_nan_values = values[~pd.isnull(values)]
+        if no_nan_values.size <= 2 and np.all(np.sort(no_nan_values).astype(int) ==
+                                              np.array(range(no_nan_values.min().astype(int),
+                                                             no_nan_values.min().astype(int) + len(no_nan_values)))):
+            feat_distributions.append(('bernoulli', 1))
+        elif np.amin(np.equal(np.mod(no_nan_values, 1), 0)):
+            # Check if values are floats but don't have decimals and transform to int. They are floats because of NaNs
+            if no_nan_values.dtype == 'float64':
+                no_nan_values = no_nan_values.astype(int)
+            if np.unique(no_nan_values).size < 50 and np.amin(no_nan_values) == 0:
+                feat_distributions.append(('categorical', (np.max(no_nan_values) + 1).astype(int)))
+            else:
+                feat_distributions.append(('gaussian', 2))
+        else:
+            feat_distributions.append(('gaussian', 2))
     data_manager.set_feat_distributions(feat_distributions)
 
     # Normalize, impute data

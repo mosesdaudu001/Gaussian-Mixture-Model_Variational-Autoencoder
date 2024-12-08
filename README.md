@@ -1,7 +1,7 @@
 <!-- ABOUT THE PROJECT -->
 ## Tabular Data Generator
 
-Tabular data generator model based on the integration of Gaussian Mixture model and Variational Autoencoders as explained by Patricia et all in the [paper](https://arxiv.org/pdf/2404.08434). 
+Tabular data generator model based on the integration of Gaussian Mixture model and Variational Autoencoders as explained by Patricia et al in the [paper](https://arxiv.org/pdf/2404.08434). 
 
 Dataset can be found [here](https://www.kaggle.com/datasets/sulianova/cardiovascular-disease-dataset).
 

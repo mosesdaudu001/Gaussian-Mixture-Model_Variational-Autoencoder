@@ -1,9 +1,7 @@
 # Packages to import
 import os
 import pickle
-
-from vae_bgm_inov.datasets.main_datasets import *
-from datasets.medical_datasets import *
+import pandas as pd
 
 
 # Check if file exists
@@ -56,21 +54,22 @@ def run_args():
 
     # Missing data related parameters
     # Additional parameters related to model architecture
-    args['model_mask'] = True  # Use missing info mask during training
+    args['model_mask'] = False  # Use missing info mask during training
 
     # Depending on the task, set the arguments
     args['input_dir'] = args['abs_path'] + 'datasets' + os.sep + 'raw_data' + os.sep
 
     # Training and testing configurations for savae and sota models
-    args['train'] = True
-    args['eval'] = True
+    args['train'] = False
+    args['eval'] = False
     args['early_stop'] = True
-    args['batch_size'] = 500
+    args['batch_size'] = 1000
     args['n_epochs'] = 1000
     args['lr'] = 1e-3
 
     # Gaussian generation to compare with TVAE
     args['gauss'] = False
+    
 
     # VAE hyperparameters
     args['n_threads'] = -1
@@ -82,11 +81,21 @@ def run_args():
     args['classifiers_list'] = ['RF']
 
     # Dataset nature (for validation)
-    args['sa_datasets'] = ['']
-    args['cl_datasets'] = ['cardio_train']
+    args['sa_datasets'] = ['metabric', 'std']
+    args['cl_datasets'] = ['adult','cardio_train']
+
+    # SOTA models
+    args['sota_output_dir'] = args['abs_path'] + 'data_generation' + os.sep + 'output_sota' + os.sep
+    model_name = 'ctgan'
+    args['models'] = ['ctgan'] if model_name == 'all' else [model_name]
 
     # VAE
     args['train_vae'] = True
-    args['output_dir'] = args['abs_path'] + 'data_generation' + os.sep + 'output_generator' + os.sep
+    args['convert_cont_to_cat'] = True
+    if args['convert_cont_to_cat']:
+        args['output_dir'] = args['abs_path'] + 'data_generation' + os.sep + 'cont_to_cat_output_generator' + os.sep
+    else:
+        args['output_dir'] = args['abs_path'] + 'data_generation' + os.sep + 'output_generator' + os.sep
+
 
     return args
